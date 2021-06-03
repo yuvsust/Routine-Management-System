@@ -4,6 +4,7 @@ from django import forms
 from .models import Teacher, User
 # from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
+from phonenumber_field.formfields import PhoneNumberField
 
 
 User = get_user_model()
@@ -17,12 +18,17 @@ class CreateUserForm(UserCreationForm):
 
 
 class TeacherProfileForm(ModelForm):
+    phone_number = PhoneNumberField(
+        error_messages={
+            'invalid': 'Enter a valid phone number (e.g. 01711111111 or +8801711111111)'}
+    )
+
     class Meta:
         model = Teacher
-        fields = ['designation', 'time_table']
+        fields = ['designation', 'phone_number', 'time_table']
 
 
 class UserProfileForm(ModelForm):
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'avatar']
+        fields = ['first_name', 'last_name', 'email', 'avatar']

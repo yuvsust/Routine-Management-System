@@ -15,6 +15,7 @@
     }
 </style>
 {% block body %}
+
 <br>
 <div class="row">
     <div class="col-md-3">
@@ -34,37 +35,93 @@
                 <form method="POST" action="" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div id="form2">
-                        {{form2.time_table|as_crispy_field}}
+                        {{engagementForm.time_table|as_crispy_field}}
                     </div>
-                    <input class="btn btn-primary" type="submit" name="Update Information" value="Update">
+                    <input class="btn btn-primary" type="submit" name="updateEngagement" value="Update">
                 </form>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4" style="display: block;" id="show_info">
+        <div class="card card-body">
+            <h5 class="card-title text-center">Personal Info</h5>
+            <hr>
+            <div class="row">
+                <i class="fas fa-envelope-square col-md-3 text-center"></i>
+                <span class="col-md-9">{{ informationForm.email.value }}</span>
+            </div>
+            <div class="row">
+                <i class="fas fa-phone col-md-3 text-center"></i>
+                <span class="col-md-9">{{ engagementForm.phone_number.value.as_national }}</span>
+            </div>
+            <div class="row">
+                <i class="fas fa-briefcase col-md-3 text-center"></i>
+                {% for x, y in engagementForm.fields.designation.choices %}
+                {% if engagementForm.designation.value == x %}
+                <span class="col-md-9" id="desg">
+                    {{ y }}
+                </span>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <span class="btn btn-primary mt-4" onclick="hideInfo()">Update Info</span>
+    </div>
+    <div class="col-md-4" style="display: none;" id="update_info">
         <div class="card card-body">
             <h5 class="card-title">Update Personal Information</h5>
             <hr>
-            <form method="POST" action="" enctype="multipart/form-data">
+            <form method="POST" action="" enctype="multipart/form-data" id="myForm">
                 {% csrf_token %}
-                <div id="form1">
-                    {{form1|crispy}}
+                {{informationForm.first_name|as_crispy_field}}
+                {{informationForm.last_name|as_crispy_field}}
+                {{informationForm.email|as_crispy_field}}
+                {{engagementForm.phone_number|as_crispy_field}}
+                {% for message in messages %}
+                <div class="d-flex justify-content-center alert alert-danger mt-2 ml-4 mr-4" role="alert" id="message">
+                    {{ message }}
                 </div>
-                <input class="btn btn-primary" type="submit" name="Update Information" value="Update">
+                {% endfor %}
+                {{informationForm.avatar|as_crispy_field}}
+
+
+                <input class="btn btn-primary" id="submit_info" type="submit" name="updateInformation" value="Update"
+                    disabled>
+                <span class="btn btn-primary ml-2" onclick="hideForm()">Cancel</span>
             </form>
         </div>
     </div>
 </div>
 
 <script>
-    let form1 = document.getElementById("form1").innerHTML
-    let form2 = document.getElementById("form2").innerHTML
 
-    //console.log(form1)
-    console.log(form2)
+    // Toggle show info and update info div
+    show_info = document.getElementById("show_info")
+    update_info = document.getElementById("update_info")
 
-    let current_avatar = document.getElementById("form1").children[3].children[5]
-    console.log(current_avatar)
+    function hideInfo() {
+        show_info.style.display = "none"
+        update_info.style.display = "block"
+    }
+
+    function hideForm() {
+        show_info.style.display = "block"
+        update_info.style.display = "none"
+    }
+
+    // If any error messages occur while submitting the form
+    // this will hide the info div at very first and take user to the form.
+    {% if messages %}
+    hideInfo()
+    {% endif %}
+
+    // Enable Submit button if at-least one field is updated
+    submit = document.getElementById("submit_info")
+    let form = document.getElementById("myForm");
+    form.addEventListener("input", function () {
+        submit.disabled = false
+    });
+
 </script>
 
 

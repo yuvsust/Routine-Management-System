@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class UserManager(BaseUserManager):
@@ -115,8 +116,11 @@ class Teacher(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True)
     priority = models.IntegerField(_('priority'), default=1)
-    designation = models.CharField(max_length=3, choices=DESIGNATION_CHOICES)
-    time_table = models.ManyToManyField(TimeTable, through='Engagement')
+    designation = models.CharField(
+        max_length=3, choices=DESIGNATION_CHOICES, default="Lecturer", blank=True)
+    phone_number = PhoneNumberField(null=True, blank=True, max_length=15)
+    time_table = models.ManyToManyField(
+        TimeTable, through='Engagement', blank=True)
 
     class Meta:
         verbose_name = _('teacher')

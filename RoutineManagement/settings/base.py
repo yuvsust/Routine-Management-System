@@ -26,7 +26,11 @@ INSTALLED_APPS = [
 
     # third party apps installed
     'crispy_forms',
+    'phonenumber_field',
 ]
+
+PHONENUMBER_DB_FORMAT = 'NATIONAL'
+PHONENUMBER_DEFAULT_REGION = 'BD'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

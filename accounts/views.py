@@ -21,24 +21,47 @@ def home(request):
 def teacherProfile(request):
     user = request.user
     teacher = request.user.teacher
-    form1 = UserProfileForm(instance=user)
-    form2 = TeacherProfileForm(instance=teacher)
 
     if request.method == 'POST':
-        form1 = UserProfileForm(request.POST, request.FILES, instance=user)
-        form2 = TeacherProfileForm(
-            request.POST, request.FILES, instance=teacher)
+        print(request.POST)
+        if 'updateEngagement' in request.POST:
+            print("Update Engagement")
+            engagementForm = TeacherProfileForm(
+                request.POST, instance=teacher)
 
-        if form1.is_valid():
-            form1.save()
-        else:
-            print(form1.errors)
+            if engagementForm.is_valid():
+                engagementForm.save()
+                print(engagementForm.cleaned_data)
+            else:
+                print(engagementForm.errors)
 
-        if form2.is_valid():
-            form2.save()
-        else:
-            print(form2.errors)
-    context = {'form1': form1, 'form2': form2}
+        elif 'updateInformation' in request.POST:
+            informationForm = UserProfileForm(
+                request.POST, request.FILES, instance=user)
+            engagementForm = TeacherProfileForm(
+                request.POST, instance=teacher)
+
+            if "phone_number" in request.POST:
+                phone = request.POST.get("phone_number")
+                if engagementForm.is_valid():
+                    print("##############################")
+                    print(engagementForm.cleaned_data)
+                    engagementForm.save()
+                else:
+                    print(engagementForm.errors)
+                    messages.error(
+                        request, "Enter a valid phone number (e.g. 01711111111 or +8801711111111)")
+
+            if informationForm.is_valid():
+                informationForm.save()
+                print(informationForm.cleaned_data)
+            else:
+                print(informationForm.errors)
+
+    informationForm = UserProfileForm(instance=user)
+    engagementForm = TeacherProfileForm(instance=teacher)
+    context = {'informationForm': informationForm,
+               'engagementForm': engagementForm}
     return render(request, "accounts/teacher_profile.html", context)
 
 
