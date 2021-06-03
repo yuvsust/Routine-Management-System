@@ -23,6 +23,9 @@ INSTALLED_APPS = [
 
     # created apps
     'accounts',
+
+    # third party apps installed
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -92,7 +95,24 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/images/'
 
-MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_URL = '/media/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+MEDIA_ROOT = BASE_DIR / 'static/images'
+STATIC_ROOT = BASE_DIR / 'static_collect'
+
+
 AUTH_USER_MODEL = 'accounts.User'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+
+# SMTP Configuration for sending Email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'tanvirhossainyuvraz@gmail.com'
+EMAIL_HOST_PASSWORD = 't0m@rv@ng@smr!t!'

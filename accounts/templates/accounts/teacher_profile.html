@@ -1,0 +1,71 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+<title>{{ request.user.get_full_name }}</title>
+{% endblock %}
+
+<style>
+    .profile-pic {
+        max-width: 200px;
+        max-height: 50px;
+        margin: 0 auto;
+        border-radius: 50%;
+    }
+</style>
+{% block body %}
+<br>
+<div class="row">
+    <div class="col-md-3">
+        <div class="card card-body">
+            {% comment %} <a class="btn btn-warning" href="{% url 'home' %}"> &#8592; Back to Profile</a>
+            <hr> {% endcomment %}
+            <h3 style="text-align: center">{{ request.user.get_full_name }}</h3>
+            <hr>
+            <img class="profile-pic" src="{{request.user.avatar.url}}">
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Update Your Engagement</h5>
+                <hr>
+                <form method="POST" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div id="form2">
+                        {{form2.time_table|as_crispy_field}}
+                    </div>
+                    <input class="btn btn-primary" type="submit" name="Update Information" value="Update">
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-body">
+            <h5 class="card-title">Update Personal Information</h5>
+            <hr>
+            <form method="POST" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div id="form1">
+                    {{form1|crispy}}
+                </div>
+                <input class="btn btn-primary" type="submit" name="Update Information" value="Update">
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let form1 = document.getElementById("form1").innerHTML
+    let form2 = document.getElementById("form2").innerHTML
+
+    //console.log(form1)
+    console.log(form2)
+
+    let current_avatar = document.getElementById("form1").children[3].children[5]
+    console.log(current_avatar)
+</script>
+
+
+{% endblock %}

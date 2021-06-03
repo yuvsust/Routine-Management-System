@@ -45,7 +45,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(_('date joined'), auto_now_add=True)
     is_staff = models.BooleanField(_('staff'), default=False)
     is_active = models.BooleanField(_('active'), default=True)
-    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    avatar = models.ImageField(
+        default="avatars/default_avatar.png", upload_to='avatars/', null=True, blank=True)
     is_student = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
 
