@@ -2,13 +2,17 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls import static
-from .views import loginUser, logoutUser, register
+from .views import home, loginUser, logoutUser, register, viewRoutine, teacherProfile
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    path('', home, name="home"),
     path('login/', loginUser, name="login"),
     path('logout/', logoutUser, name="logout"),
     path('register/', register, name="register"),
+    path('view-routine/', viewRoutine, name="view_routine"),
+    path('profile/', teacherProfile, name="teacher_profile"),
+
 
     path('reset_password/',
          auth_views.PasswordResetView.as_view(
