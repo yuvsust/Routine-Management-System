@@ -23,6 +23,7 @@ INSTALLED_APPS = [
 
     # created apps
     'accounts',
+    'core',
 
     # third party apps installed
     'crispy_forms',

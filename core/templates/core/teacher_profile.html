@@ -1,0 +1,214 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+<title>{{ request.user.get_full_name }}</title>
+{% endblock %}
+<style>
+    .profile-pic {
+        max-width: 50px;
+        max-height: 50px;
+        margin: 0 auto;
+        border-radius: 50%;
+    }
+</style>
+{% block body %}
+
+<br>
+<div class="row">
+    <div class="col-md-3">
+        <!-- Avatar and Name Div-->
+        <div class="card card-body">
+            <h3 style="text-align: center">{{ request.user.get_full_name }}</h3>
+            <hr>
+            <img class="profile-pic" src="{{request.user.avatar.url}}">
+        </div>
+        <!-- Avatar and Name Div Ends-->
+
+        <br>
+
+        <!-- Show Personal Info Div -->
+        <div class="" style="display: block;" id="show_info">
+            <div class="card card-body">
+                <h5 class="card-title text-center">Personal Info</h5>
+                <hr>
+                <div class="row">
+                    <i class="fas fa-envelope-square col-md-3 text-center"></i>
+                    <span class="col-md-9">{{ informationForm.email.value }}</span>
+                </div>
+                <div class="row">
+                    <i class="fas fa-phone col-md-3 text-center"></i>
+                    <span class="col-md-9">{{ engagementForm.phone_number.value.as_national }}</span>
+                </div>
+                <div class="row">
+                    <i class="fas fa-briefcase col-md-3 text-center"></i>
+                    {% for x, y in engagementForm.fields.designation.choices %}
+                    {% if engagementForm.designation.value == x %}
+                    <span class="col-md-9" id="desg">
+                        {{ y }}
+                    </span>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <br>
+            </div>
+            <span class="btn btn-primary mt-4" onclick="hideInfo()">Update Info</span>
+        </div>
+        <!-- Show Personal Info Div Ends-->
+    </div>
+
+    <!-- Update Engagement Div-->
+    <div class="col-md-9">
+        {% include 'core/schedule.html' %}
+    </div>
+    <!-- Update Engagement Div Ends-->
+</div>
+<br><br>
+<div class="row">
+    <!-- Update Personal Info Form -->
+    <div class="col-md-6" style="display: none;" id="update_info">
+        <div class="card card-body">
+            <h5 class="card-title">Update Personal Information</h5>
+            <hr>
+            <form method="POST" action="" enctype="multipart/form-data" id="myForm">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        {{informationForm.first_name|as_crispy_field}}
+                    </div>
+                    <div class="col-md-6">
+                        {{informationForm.last_name|as_crispy_field}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{informationForm.email|as_crispy_field}}
+                    </div>
+                    <div class="col-md-6">
+                        {{engagementForm.phone_number|as_crispy_field}}
+                    </div>
+                </div>
+                {% for message in messages %}
+                <div class="d-flex justify-content-center alert alert-danger mt-2 ml-4 mr-4" role="alert" id="message">
+                    {{ message }}
+                </div>
+                {% endfor %}
+
+                {{informationForm.avatar|as_crispy_field}}
+
+                <input class="btn btn-primary" id="submit_info" type="submit" name="updateInformation" value="Update"
+                    disabled>
+                <span class="btn btn-primary ml-2" onclick="hideForm()">Cancel</span>
+            </form>
+        </div>
+    </div>
+    <!-- Update Personal Info Div Ends-->
+</div>
+
+
+<script>
+    // If any error messages occur while submitting the form
+    // this will hide the info div at very first and take user to the form.
+    {% if messages or informationForm.errors %}
+    hideInfo()
+    {% endif %}
+    // Error show ends //
+
+
+    //------ Toggle show info and update info div strats--------//
+    show_info = document.getElementById("show_info")
+    update_info = document.getElementById("update_info")
+
+    function hideInfo() {
+        show_info.style.display = "none"
+        update_info.style.display = "block"
+    }
+
+    function hideForm() {
+        show_info.style.display = "block"
+        update_info.style.display = "none"
+    }
+    //------ Toggle show info and update info div ends --------//
+
+
+    //------ Enable Submit button if at-least one field is updated starts------//
+    submit = document.getElementById("submit_info")
+    let form = document.getElementById("myForm");
+    form.addEventListener("input", function () {
+        submit.disabled = false
+    });
+    //------ Enable Submit button if at-least one field is updated ends ------//
+
+
+    //------ Mark Teachers engagement status as Danger in the cell starts------//
+    const id_list = ["SUN8", "SUN9", "SUN10", "SUN11", "SUN12", "SUN2", "SUN3", "SUN4", "MON8", "MON9", "MON10", "MON11", "MON12", "MON2", "MON3", "MON4", "TUE8", "TUE9", "TUE10", "TUE11", "TUE12", "TUE2", "TUE3", "TUE4", "WED8", "WED9", "WED10", "WED11", "WED12", "WED2", "WED3", "WED4", "THU8", "THU9", "THU10", "THU11", "THU12", "THU2", "THU3", "THU4"]
+    form_field = []
+    $("#id_time_table option").each(function () {
+        form_field.push($(this).filter(':selected').text())
+    })
+    for (let i = 0; i < id_list.length; i++) {
+        cell = document.getElementById(id_list[i])
+        for (let j = 0; j < form_field.length; j++) {
+            if (form_field[j] == id_list[i]) {
+                console.log(form_field[j])
+                cell.classList.add("bg-danger")
+                break;
+            }
+        }
+    }
+    //------ Mark Teachers engagement status as Danger in the cell ends ------//
+
+
+    //------ Update Engagement Schedule in the Run-Time starts ------//
+    update = document.getElementById("updateSchedule")
+    upload = document.getElementById("uploadToAdmin")
+    saved = document.getElementById("saveUpdate")
+    footer = document.getElementById("cardFooter")
+    title = document.getElementById("engagementTitle")
+
+    function startUpdate() {
+        update.style.display = "none"
+        upload.style.display = "none"
+        saved.style.display = "inline-block"
+        footer.style.display = "inline-block"
+        title.innerText = "Update Your Engagement"
+
+        for (let i = 0; i < id_list.length; i++) {
+            let cell = document.getElementById(id_list[i])
+            cell.style.cursor = "pointer"
+            cell.innerText = ""
+            cell.addEventListener("click", showAlert);
+        }
+    }
+
+    showAlert = function (event) {
+        cell_id = event.target.id
+        classList = event.target.classList
+        if (classList.contains("bg-danger")) {
+            classList.remove("bg-danger");
+            $("#id_time_table option:contains(" + cell_id + ")").prop('selected', false)
+        }
+        else {
+            classList.add("bg-danger");
+            $("#id_time_table option:contains(" + cell_id + ")").prop('selected', true)
+        }
+    }
+
+    function cancelUpdate() {
+        update.style.display = "inline-block"
+        upload.style.display = "inline-block"
+        saved.style.display = "none"
+        footer.style.display = "none"
+        title.innerText = "Your Engagement"
+
+        for (let i = 0; i < id_list.length; i++) {
+            cell = document.getElementById(id_list[i])
+            cell.style.cursor = "default"
+            cell.innerText = ""
+            cell.removeEventListener("click", showAlert);
+        }
+    }
+//------ Update Engagement Schedule in the Run-Time ends ------//
+</script>
+{% endblock %}
