@@ -20,7 +20,8 @@ class CreateUserForm(UserCreationForm):
 class TeacherProfileForm(ModelForm):
     phone_number = PhoneNumberField(
         error_messages={
-            'invalid': 'Enter a valid phone number (e.g. 01711111111 or +8801711111111)'}
+            'invalid': 'Enter a valid phone number (e.g. 01711111111 or +8801711111111)'},
+        required=False
     )
 
     class Meta:

@@ -1,13 +1,15 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.forms import modelform_factory
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from .forms import CreateUserForm, TeacherProfileForm, UserProfileForm
-from .models import Student, Teacher
+from .models import Student, Teacher, Engagement
 from .decorators import unauthenticated, allowed_user, admin_only
 import ast
+import json
 
 
 @login_required(login_url='login')
@@ -21,16 +23,28 @@ def home(request):
 def teacherProfile(request):
     user = request.user
     teacher = request.user.teacher
+    informationForm, engagementForm = None, None
 
     if request.method == 'POST':
         print(request.POST)
-        if 'updateEngagement' in request.POST:
-            print("Update Engagement")
-            engagementForm = TeacherProfileForm(
+        if 'uploadEngagement' in request.POST:
+            print("Upload Engagement")
+
+            PartialEngagementForm = modelform_factory(
+                Teacher, form=TeacherProfileForm, fields=("time_table",)
+            )
+            engagementForm = PartialEngagementForm(
                 request.POST, instance=teacher)
 
             if engagementForm.is_valid():
-                engagementForm.save()
+                form = engagementForm.save()
+                # Mark engaged in the database
+                engagement = Engagement.objects.filter(
+                    teacher=teacher, time_table__in=engagementForm.cleaned_data['time_table'])
+                for i in range(len(engagement)):
+                    engagement[i].status = 'ENG'
+                    engagement[i].save()
+
                 print(engagementForm.cleaned_data)
             else:
                 print(engagementForm.errors)
@@ -38,30 +52,30 @@ def teacherProfile(request):
         elif 'updateInformation' in request.POST:
             informationForm = UserProfileForm(
                 request.POST, request.FILES, instance=user)
-            engagementForm = TeacherProfileForm(
-                request.POST, instance=teacher)
 
             if "phone_number" in request.POST:
-                phone = request.POST.get("phone_number")
+                PartialEngagementForm = modelform_factory(
+                    Teacher, form=TeacherProfileForm, fields=("phone_number",)
+                )
+                engagementForm = PartialEngagementForm(
+                    request.POST, instance=teacher)
                 if engagementForm.is_valid():
-                    print("##############################")
-                    print(engagementForm.cleaned_data)
                     engagementForm.save()
                 else:
-                    print(engagementForm.errors)
                     messages.error(
                         request, "Enter a valid phone number (e.g. 01711111111 or +8801711111111)")
 
             if informationForm.is_valid():
                 informationForm.save()
-                print(informationForm.cleaned_data)
             else:
-                print(informationForm.errors)
+                informationForm = informationForm
 
-    informationForm = UserProfileForm(instance=user)
+    if not informationForm:
+        informationForm = UserProfileForm(instance=user)
     engagementForm = TeacherProfileForm(instance=teacher)
     context = {'informationForm': informationForm,
                'engagementForm': engagementForm}
+
     return render(request, "accounts/teacher_profile.html", context)
 
 
