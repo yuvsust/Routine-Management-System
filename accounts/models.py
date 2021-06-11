@@ -120,7 +120,7 @@ class Teacher(models.Model):
         max_length=3, choices=DESIGNATION_CHOICES, default="Lecturer", blank=True)
     phone_number = PhoneNumberField(null=True, blank=True, max_length=15)
     time_table = models.ManyToManyField(
-        TimeTable, through='Engagement', blank=True)
+        TimeTable, through='TeacherEngagement', blank=True)
 
     class Meta:
         verbose_name = _('teacher')
@@ -130,7 +130,7 @@ class Teacher(models.Model):
         return self.user.get_full_name()
 
 
-class Engagement(models.Model):
+class TeacherEngagement(models.Model):
     STATUS_CHOICES = (
         ('ACT', 'ACTIVE'),
         ('ENG', 'ENGAGED')
@@ -158,3 +158,6 @@ class Student(models.Model):
     class Meta:
         verbose_name = _('student')
         verbose_name_plural = _('students')
+
+    def __str__(self):
+        return self.user.get_full_name() + " " + self.reg_no
