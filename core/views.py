@@ -1,16 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.forms import modelform_factory
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from accounts.decorators import admin_only, allowed_user
-from accounts.models import User, Teacher, Engagement
+from accounts.models import User, Teacher, TeacherEngagement
 from accounts.forms import TeacherProfileForm, UserProfileForm
 
 
 @login_required(login_url='login')
 @admin_only
 def home(request):
-    return render(request, "core/home.html")
+    return redirect('view_routine')
 
 
 @login_required(login_url='login')
@@ -34,13 +34,11 @@ def teacherProfile(request):
             if engagementForm.is_valid():
                 form = engagementForm.save()
                 # Mark engaged in the database
-                engagement = Engagement.objects.filter(
+                engagement = TeacherEngagement.objects.filter(
                     teacher=teacher, time_table__in=engagementForm.cleaned_data['time_table'])
                 for i in range(len(engagement)):
                     engagement[i].status = 'ENG'
                     engagement[i].save()
-
-                print(engagementForm.cleaned_data)
             else:
                 print(engagementForm.errors)
 
@@ -77,3 +75,8 @@ def teacherProfile(request):
 @allowed_user(allowed_roles=['admin', 'student', 'teacher'])
 def viewRoutine(request):
     return render(request, "core/view_routine.html")
+
+
+@allowed_user(allowed_roles=['admin'])
+def createRoutine(request):
+    return render(request, "core/create_routine.html")

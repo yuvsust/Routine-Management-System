@@ -22,8 +22,10 @@ def allowed_user(allowed_roles=[]):
                 role = 'admin'
             if role in allowed_roles:
                 return view_func(request, *args, **kwargs)
+            elif request.user.is_teacher:
+                return redirect('teacher_profile')
             else:
-                return HttpResponse("You are not allowed to view this page")
+                return redirect('view_routine')
         return wrapper_func
     return decorator
 

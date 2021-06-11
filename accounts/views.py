@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from .forms import CreateUserForm, TeacherProfileForm, UserProfileForm
-from .models import Student, Teacher, Engagement
+from .models import Student, Teacher, TeacherEngagement
 from .decorators import unauthenticated, allowed_user, admin_only
 import ast
 import json
