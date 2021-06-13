@@ -5,12 +5,15 @@ from django.contrib.auth.decorators import login_required
 from accounts.decorators import admin_only, allowed_user
 from accounts.models import User, Teacher, TeacherEngagement
 from accounts.forms import TeacherProfileForm, UserProfileForm
+from .forms import CourseRegisterForm, RoomRegisterForm
+import json
+import ast
 
 
 @login_required(login_url='login')
 @admin_only
 def home(request):
-    return redirect('view_routine')
+    return render(request, "core/admin_dashboard.html")
 
 
 @login_required(login_url='login')
@@ -72,11 +75,49 @@ def teacherProfile(request):
     return render(request, "core/teacher_profile.html", context)
 
 
+@login_required(login_url='login')
 @allowed_user(allowed_roles=['admin', 'student', 'teacher'])
 def viewRoutine(request):
-    return render(request, "core/view_routine.html")
+    return render(request, "core/admin_dashboard.html")
 
 
-@allowed_user(allowed_roles=['admin'])
+@login_required(login_url='login')
+@admin_only
 def createRoutine(request):
     return render(request, "core/create_routine.html")
+
+
+@login_required(login_url='login')
+@admin_only
+def registerCourse(request):
+    form = CourseRegisterForm
+
+    if request.method == 'POST':
+        form = CourseRegisterForm(request.POST)
+        if form.is_valid():
+            course = form.save()
+            course_code = form.cleaned_data.get('course_code')
+            messages.success(
+                request, "New Course ( " + course_code + " ) is registered !!", extra_tags='success')
+            redirect('course_register')
+
+    context = {'form': form}
+    return render(request, "core/course_register.html", context)
+
+
+@login_required(login_url='login')
+@admin_only
+def registerRoom(request):
+    form = RoomRegisterForm
+
+    if request.method == 'POST':
+        form = RoomRegisterForm(request.POST)
+        if form.is_valid():
+            room = form.save()
+            room_id = form.cleaned_data.get('room_id')
+            messages.success(
+                request, "New Room ( " + room_id + " ) is registered !!", extra_tags='success')
+            redirect('room_register')
+
+    context = {'form': form}
+    return render(request, "core/room_register.html", context)

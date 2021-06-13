@@ -1,0 +1,149 @@
+body {
+    margin-top: 50px;
+    background-color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    color: #39464e;
+}
+
+#nav_logo {
+    width: 30px;
+    height: 35px;
+}
+
+.navbar-brand {
+    display: inline-block;
+}
+
+.navbar-default {
+    background-color: #fff;
+    margin-left: 200px;
+    /* padding-bottom: 20px; */
+}
+
+/*main side bar*/
+
+.msb {
+    width: 188px;
+    background-color: #F5F7F9;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 20px;
+    right: auto;
+    min-height: 100%;
+    overflow-y: auto;
+    white-space: nowrap;
+    height: 100%;
+    z-index: 1;
+}
+
+.msb .navbar {
+    border: none;
+    margin-left: 0;
+    background-color: #F5F7F9;
+}
+
+.msb .navbar-header {
+    width: 100%;
+    height: 100%;
+    border-bottom: 1px solid inherit;
+    margin-bottom: 20px;
+    background: #F5F7F9;
+    padding-bottom: 20px;
+}
+
+.msb .navbar-nav .panel {
+    border: 0 none;
+    box-shadow: none;
+    margin: 0;
+    background: #F5F7F9;
+    border-right: 1px solid #ddd;
+}
+
+.msb .navbar-nav li {
+    display: block;
+    width: 100%;
+    border-right: 1px solid #ddd;
+}
+
+.msb .navbar-nav li a {
+    padding: 15px;
+    color: #5f5f5f;
+}
+
+.msb .navbar-nav li a .glyphicon, .msb .navbar-nav li a .fa {
+    margin-right: 8px;
+}
+
+.msb .nb {
+    padding-top: 5px;
+    padding-left: 10px;
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+ul.nv, ul.ns {
+    position: relative;
+    padding: 0;
+    list-style: none;
+}
+
+.nv li {
+    display: block;
+    position: relative;
+}
+
+.nv li::before {
+    clear: both;
+    content: "";
+    display: table;
+}
+
+.nv li a {
+    color: #444;
+    padding: 10px 25px;
+    display: block;
+}
+
+.nv li a .ic {
+    font-size: 16px;
+    margin-right: 5px;
+    font-weight: 300;
+    display: inline-block;
+}
+
+.nv .ns li a {
+    padding: 10px 50px;
+}
+
+/*main content wrapper*/
+
+.mcw {
+    margin-top: 50px;
+    margin-left: 150px;
+    position: relative;
+    min-height: 100%;
+    /*content view*/
+}
+
+/*globals*/
+
+a, a:focus, a:hover {
+    text-decoration: none;
+}
+
+.mnb {
+    background: #fff;
+    margin-left: 188px;
+    border-bottom: 1px solid #ddd;
+}
+
+#id_course_name, #id_course_code, #id_course_credit, #id_course_type, #id_preference, #id_teacher, #id_semester, #registerCourse, #id_room_id, #id_room_type, #registerRoom {
+    font-size: 16px;
+}
+
+#registerCourse, #registerRoom {
+    margin-left: 10px;
+}

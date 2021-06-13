@@ -5,8 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 
 class Course(models.Model):
     TYPE_CHOICES = (
-        ('LAB', 'Lab'),
-        ('THEORY', 'Theory')
+        ('THEORY', 'Theory'),
+        ('LAB', 'Lab')
     )
 
     PREFERENCE_CHOICES = (
@@ -26,7 +26,8 @@ class Course(models.Model):
     )
 
     course_name = models.CharField(_('Course Name'), max_length=60)
-    course_code = models.CharField(_('Course Code'), max_length=10)
+    course_code = models.CharField(
+        _('Course Code'), max_length=10, unique=True)
     course_type = models.CharField(
         _('Course Type'), max_length=6, choices=TYPE_CHOICES)
     course_credit = models.DecimalField(
@@ -47,8 +48,8 @@ class Course(models.Model):
 
 class Room(models.Model):
     TYPE_CHOICES = (
-        ('LAB', 'Lab'),
-        ('THEORY', 'Theory')
+        ('THEORY', 'Theory'),
+        ('LAB', 'Lab')
     )
 
     room_id = models.CharField(max_length=8, unique=True)

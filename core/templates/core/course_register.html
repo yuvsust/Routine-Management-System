@@ -1,0 +1,57 @@
+{% extends 'core/admin_base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block course_reg_active %}
+class="active"
+{% endblock course_reg_active %}
+
+{% block body %}
+<div class="row jumbotron">
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.extra_tags }}" role="alert">
+            <strong>{{ message }}</strong>
+        </div>
+        {% endfor %}
+        {% if form.errors %}
+        {% for error in field.errors %}
+        <strong>{{ error|escape }}</strong>
+        {% endfor %}
+        {{ form.course_code.error }}
+        {{ form.course_credit.error }}
+        {% endif %}
+        <div class="card">
+            <h1 class="card-header">
+                Register Course
+            </h1>
+            <form action="" method="POST">
+                {% csrf_token %}
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            {{ form.course_name|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">{{ form.course_code|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.course_type|as_crispy_field }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">{{ form.course_credit|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.preference|as_crispy_field }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">{{ form.semester|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.teacher|as_crispy_field }}</div>
+                    </div>
+                </div>
+                <input class="btn btn-primary mb-4" id="registerCourse" value="Submit" type="submit">
+            </form>
+        </div>
+    </div>
+    <div class="col-md-1"></div>
+</div>
+
+{% endblock body %}
