@@ -1,14 +1,114 @@
 {% extends 'core/admin_base.html' %}
 
-{% block create_routine_active %}
-class="active"
-{% endblock create_routine_active %}
+
+{% block navbar %}
+{% with current='create' %}{{ block.super }}{% endwith %}
+{% endblock navbar %}
 
 {% block body %}
 <div class="row jumbotron">
-    <div class="col-md-1"></div>
-    <div class="col-md-10">
-        <h1>Hello Admin... Create Routine here</h1>
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-pills card-header-pills" id="navbar" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link text-dark">
+                            <strong>Semesters</strong></button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link active" id="pills-11-tab" data-bs-toggle="pill" data-target="#pills-11"
+                            type="button" role="tab" aria-controls="pills-11" aria-selected="true">1 / 1</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="pills-12-tab" data-bs-toggle="pill" data-target="#pills-12"
+                            type="button" role="tab" aria-controls="pills-12" aria-selected="false">1 / 2</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="pills-21-tab" data-bs-toggle="pill" data-target="#pills-21"
+                            type="button" role="tab" aria-controls="pills-21" aria-selected="false">2 / 1</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="pills-22-tab" data-bs-toggle="pill" data-target="#pills-22"
+                            type="button" role="tab" aria-controls="pills-22" aria-selected="false">2 / 2</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="pills-31-tab" data-bs-toggle="pill" data-target="#pills-31"
+                            type="button" role="tab" aria-controls="pills-31" aria-selected="false">3 / 1</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="pills-32-tab" data-bs-toggle="pill" data-target="#pills-32"
+                            type="button" role="tab" aria-controls="pills-32" aria-selected="false">3 / 2</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="pills-41-tab" data-bs-toggle="pill" data-target="#pills-41"
+                            type="button" role="tab" aria-controls="pills-41" aria-selected="false">4 / 1</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="pills-42-tab" data-bs-toggle="pill" data-target="#pills-42"
+                            type="button" role="tab" aria-controls="pills-42" aria-selected="false">4 / 2</button>
+                    </li>
+                </ul>
+
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-11" role="tabpanel" aria-labelledby="pills-11-tab">
+                        {% include "core/admin_routine.html" %}
+                    </div>
+                    <div class="tab-pane fade" id="pills-12" role="tabpanel" aria-labelledby="pills-12-tab">
+                        {% include "core/admin_routine.html" %}
+                    </div>
+                    <div class="tab-pane fade" id="pills-21" role="tabpanel" aria-labelledby="pills-21-tab">
+                        {% include "core/admin_routine.html" %}
+                    </div>
+                    <div class="tab-pane fade" id="pills-22" role="tabpanel" aria-labelledby="pills-22-tab">
+                        {% include "core/admin_routine.html" %}
+                    </div>
+                    <div class="tab-pane fade" id="pills-31" role="tabpanel" aria-labelledby="pills-31-tab">
+                        {% include "core/admin_routine.html" %}
+                    </div>
+                    <div class="tab-pane fade" id="pills-32" role="tabpanel" aria-labelledby="pills-32-tab">
+                        {% include "core/admin_routine.html" %}
+                    </div>
+                    <div class="tab-pane fade" id="pills-41" role="tabpanel" aria-labelledby="pills-41-tab">
+                        {% include "core/admin_routine.html" %}
+                    </div>
+                    <div class="tab-pane fade" id="pills-42" role="tabpanel" aria-labelledby="pills-42-tab">
+                        {% include "core/admin_routine.html" %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer ml-3" id="cardFooter" style="display: block; color:darkslategray;"><b>Click on a
+                    Cell to
+                    mark
+                    it as
+                    Engaged. Double click
+                    to remove the mark</b></div>
+        </div>
+
     </div>
 </div>
 {% endblock body %}
+
+{% block js %}
+
+<script>
+    var triggerTabList = [].slice.call(document.querySelectorAll('#navbar button'))
+
+    for (let i = 0; i < triggerTabList.length; i++) {
+        //triggerTabList[i].setAttribute("style", "text-decoration: none; color: black;")
+    }
+
+
+    triggerTabList.forEach(function (triggerEl) {
+        var tabTrigger = new bootstrap.Tab(triggerEl)
+        console.log(tabTrigger)
+        triggerEl.addEventListener('click', function (event) {
+            event.preventDefault()
+            tabTrigger.show()
+        })
+    })
+</script>
+
+{% endblock %}

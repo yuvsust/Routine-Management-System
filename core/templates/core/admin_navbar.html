@@ -1,0 +1,35 @@
+{% load static %}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light mr-5">
+    <a href="{% url 'home' %}" style="text-decoration: none; color: darkslategray">
+        <img id="nav_logo" src="{% static 'images\logo.png' %}" style="height: 30px; width: 30px">
+        <strong>SUST CSE Routine</strong>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+        aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNavDropdown">
+        <ul class="navbar-nav">
+            <li class="nav-item {% if current == 'home' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'home' %}">Dashboard <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item {% if current == 'create' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'create_routine' %}">Create Routine</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'admin:index' %}">Django Admin Panel</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                    aria-haspopup="false" aria-expanded="false">
+                    Register
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="{% url 'course_register' %}">New Course</a>
+                    <a class="dropdown-item" href="{% url 'room_register' %}">Room</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>

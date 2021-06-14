@@ -1,0 +1,80 @@
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+<div class="schedule">
+    <table class="table table-bordered">
+        <thead class="thead-dark text-center bg-dark text-light">
+            <tr>
+                <th scope="col">Day/Time</th>
+                <th scope="col">8 AM</th>
+                <th scope="col">9 AM</th>
+                <th scope="col">10 AM</th>
+                <th scope="col">11 AM</th>
+                <th scope="col">12 PM</th>
+                <th scope="col">1 PM</th>
+                <th scope="col">2 PM</th>
+                <th scope="col">3 PM</th>
+                <th scope="col">4 PM</th>
+            </tr>
+        </thead>
+        <tbody style="height: 50px;">
+            <tr class="text-center" style="height: 70px;">
+                <th class="bg-dark text-light" scope="col">SUN</th>
+                <td scope="col" id="SUN8"></td>
+                <td scope="col" id="SUN9"></td>
+                <td scope="col" id="SUN10"></td>
+                <td scope="col" id="SUN11"></td>
+                <td scope="col" id="SUN12"></td>
+                <td class="bg-warning" rowspan="6"><br><br><br><br>B<br>R<br>E<br>A<br>K</td>
+                <td scope="col" id="SUN2"></td>
+                <td scope="col" id="SUN3"></td>
+                <td scope="col" id="SUN4"></td>
+            </tr>
+            <tr class="text-center" style="height: 70px;">
+                <th class="bg-dark text-light" scope="col">MON</th>
+                <td scope="col" id="MON8"></td>
+                <td scope="col" id="MON9"></td>
+                <td scope="col" id="MON10"></td>
+                <td scope="col" id="MON11"></td>
+                <td scope="col" id="MON12"></td>
+                <td scope="col" id="MON2"></td>
+                <td scope="col" id="MON3"></td>
+                <td scope="col" id="MON4"></td>
+            </tr>
+            <tr class="text-center" style="height: 70px;">
+                <th class="bg-dark text-light" scope="col">TUE</th>
+                <td scope="col" id="TUE8"></td>
+                <td scope="col" id="TUE9"></td>
+                <td scope="col" id="TUE10"></td>
+                <td scope="col" id="TUE11"></td>
+                <td scope="col" id="TUE12"></td>
+                <td scope="col" id="TUE2"></td>
+                <td scope="col" id="TUE3"></td>
+                <td scope="col" id="TUE4"></td>
+            </tr>
+            <tr class="text-center" style="height: 70px;">
+                <th class="bg-dark text-light" scope="col">WED</th>
+                <td scope="col" id="WED8"></td>
+                <td scope="col" id="WED9"></td>
+                <td scope="col" id="WED10"></td>
+                <td scope="col" id="WED11"></td>
+                <td scope="col" id="WED12"></td>
+                <td scope="col" id="WED2"></td>
+                <td scope="col" id="WED3"></td>
+                <td scope="col" id="WED4"></td>
+            </tr>
+            <tr class="text-center" style="height: 70px;">
+                <th class="bg-dark text-light" scope="col">THU</th>
+                <td scope="col" id="THU8"></td>
+                <td scope="col" id="THU9"></td>
+                <td scope="col" id="THU10"></td>
+                <td scope="col" id="THU11"></td>
+                <td scope="col" id="THU12"></td>
+                <td scope="col" id="THU2"></td>
+                <td scope="col" id="THU3"></td>
+                <td scope="col" id="THU4"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
