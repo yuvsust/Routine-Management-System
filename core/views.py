@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from accounts.decorators import admin_only, allowed_user
 from accounts.models import User, Teacher, TeacherEngagement
 from accounts.forms import TeacherProfileForm, UserProfileForm
+from .models import Course, Room
 from .forms import CourseRegisterForm, RoomRegisterForm
 import json
 import ast
@@ -84,7 +85,10 @@ def viewRoutine(request):
 @login_required(login_url='login')
 @admin_only
 def createRoutine(request):
-    return render(request, "core/create_routine.html")
+    teachers = Teacher.objects.all()
+    courses = Course.objects.all()
+    context = {'teachers': teachers, 'courses': courses}
+    return render(request, "core/create_routine.html", context)
 
 
 @login_required(login_url='login')

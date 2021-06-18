@@ -1,5 +1,69 @@
 {% extends 'core/admin_base.html' %}
 
+{% block teacher_list %}
+
+{% for teacher in teachers %}
+<div class="accordion-item">
+    <h2 class="accordion-header" id="teacher{{teacher.pk}}">
+        <button class="accordion-button collapsed" type="button" data-toggle="collapse"
+            data-target="#collapse{{teacher.pk}}" aria-expanded="true" aria-controls="collapse{{teacher.pk}}">
+            {{ teacher.user.get_full_name }}
+        </button>
+    </h2>
+    <div id="collapse{{teacher.pk}}" class="accordion-collapse collapse" aria-labelledby="teacher{{teacher.pk}}"
+        data-parent="#teacher_list">
+        <div class="accordion-body">
+            <ul class="list-group">
+                {% for course in teacher.course_set.all %}
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-8">
+                            {{ course.course_code }} {{ course.course_type|lower }}
+                        </div>
+                        <div class="col-md-4">
+                            {% if course.course_type == 'LAB' %}
+                            {% widthratio course.course_credit 1 2 %} hrs left
+                            {% else %}
+                            {{ course.course_credit|floatformat }} hrs left
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block course_list %}
+{% for course in courses %}
+<div class="accordion-item">
+    <h2 class="accordion-header" id="{{ course.course_code|cut:' ' }}">
+        <button class="accordion-button collapsed" type="button" data-toggle="collapse"
+            data-target="#collapse{{course.course_code|cut:' '}}" aria-expanded="true"
+            aria-controls="collapse{{course.course_code|cut:' '}}">
+            {{ course.course_name }}
+        </button>
+    </h2>
+    <div id="collapse{{course.course_code|cut:' '}}" class="accordion-collapse collapse"
+        aria-labelledby="{{course.course_code|cut:' '}}" data-parent="#course_list">
+        <div class="accordion-body">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    {% if course.course_type == 'LAB' %}
+                    {% widthratio course.course_credit 1 2 %} hrs left
+                    {% else %}
+                    {{ course.course_credit|floatformat }} hrs left
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
 
 {% block navbar %}
 {% with current='create' %}{{ block.super }}{% endwith %}
@@ -7,15 +71,10 @@
 
 {% block body %}
 <div class="row jumbotron">
-    <div class="col-md-2"></div>
-    <div class="col-md-8">
+    <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <ul class="nav nav-pills card-header-pills" id="navbar" role="tablist">
-                    <li class="nav-item">
-                        <button class="nav-link text-dark">
-                            <strong>Semesters</strong></button>
-                    </li>
+                <ul class="nav nav-pills card-header-pills" id="routine" role="tablist">
                     <li class="nav-item">
                         <button class="nav-link active" id="pills-11-tab" data-bs-toggle="pill" data-target="#pills-11"
                             type="button" role="tab" aria-controls="pills-11" aria-selected="true">1 / 1</button>
@@ -86,29 +145,72 @@
                     Engaged. Double click
                     to remove the mark</b></div>
         </div>
-
     </div>
+    <div class="row">
+        <form action="" method="POST" class="col-md-4 ml-3">
+            {% csrf_token %}
+            <div id="engForm" style="display: none;">
+
+            </div>
+            <button class="btn btn-success mt-3" type="submit" id="uploadToServer" style="display: inline-block;">
+                Upload to the Server
+            </button>
+        </form>
+        <button class="btn btn-primary mt-3 col-md-3" onclick="startUpdate()" style="display: inline-block;"
+            id="updateSchedule">
+            Update Routine
+        </button>
+    </div>
+    <button class="btn btn-primary mt-3" type="button" href="" id="saveUpdate" style="display: none; cursor:pointer;"
+        onclick="cancelUpdate()">Save</button>
+    <br>
+    <br>
 </div>
 {% endblock body %}
 
 {% block js %}
 
 <script>
-    var triggerTabList = [].slice.call(document.querySelectorAll('#navbar button'))
+    //-------- Show all courses of the semester that is selected currently start ---------//
 
-    for (let i = 0; i < triggerTabList.length; i++) {
-        //triggerTabList[i].setAttribute("style", "text-decoration: none; color: black;")
+    // Initially semester 11 selected //
+    showAllSemesterCourses("11");
+
+    // Function that actually shows courses
+    function showAllSemesterCourses(tab_id) {
+        {% for course in courses %}
+            course_element = document.getElementById("{{ course.course_code|cut:' ' }}")
+            if ({{ course.semester }} != tab_id) {  
+                course_element.setAttribute("style", "display: none;")
+            }
+            else {
+                course_element.setAttribute("style", "display: block;")
+            }
+        {% endfor %}
     }
+    //-------- Show all courses of the semester that is selected currently ends ---------//
 
 
-    triggerTabList.forEach(function (triggerEl) {
-        var tabTrigger = new bootstrap.Tab(triggerEl)
-        console.log(tabTrigger)
-        triggerEl.addEventListener('click', function (event) {
-            event.preventDefault()
-            tabTrigger.show()
+
+    //----------------- Funtion for selected tab starts---------------------//
+    var triggerTabList = [].slice.call(document.querySelectorAll('#routine button'));
+
+    triggerTabList.forEach(function (selectedTab) {
+        var tabTrigger = new bootstrap.Tab(selectedTab);
+
+        selectedTab.addEventListener('click', function (event) {
+            // Mark the selected tab as primary button
+            event.preventDefault();
+            tabTrigger.show();
+
+
+            // Show all courses of the selected semester
+            var tab_id = $(this).attr('id');
+            tab_id = tab_id.slice(6, 8);
+            showAllSemesterCourses(tab_id);
         })
     })
+    //----------------- Funtion for selected tab ends---------------------//
 </script>
 
 {% endblock %}

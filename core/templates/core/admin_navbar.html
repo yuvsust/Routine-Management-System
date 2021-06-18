@@ -17,17 +17,24 @@
             <li class="nav-item {% if current == 'create' %}active{% endif %}">
                 <a class="nav-link" href="{% url 'create_routine' %}">Create Routine</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'admin:index' %}">Django Admin Panel</a>
-            </li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                <a class="nav-link dropdown-toggle" href="#" id="registerDropdown" data-toggle="dropdown"
                     aria-haspopup="false" aria-expanded="false">
                     Register
                 </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <div class="dropdown-menu" aria-labelledby="registerDropdown">
                     <a class="dropdown-item" href="{% url 'course_register' %}">New Course</a>
-                    <a class="dropdown-item" href="{% url 'room_register' %}">Room</a>
+                    <a class="dropdown-item" href="{% url 'room_register' %}">New Room</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="logoutDropdown" data-toggle="dropdown"
+                    aria-haspopup="false" aria-expanded="false">
+                    Settings
+                </a>
+                <div class="dropdown-menu" aria-labelledby="logoutDropdown">
+                    <a class="dropdown-item" href="{% url 'admin:index' %}">Admin Panel</a>
+                    <a class="dropdown-item" href="{% url 'logout' %}">LogOut</a>
                 </div>
             </li>
         </ul>
