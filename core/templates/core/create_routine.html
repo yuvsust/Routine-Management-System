@@ -4,7 +4,7 @@
 
 {% for teacher in teachers %}
 <div class="accordion-item">
-    <h2 class="accordion-header" id="teacher{{teacher.pk}}">
+    <h2 class="accordion-header" id="teacher{{teacher.pk}}" style="display: none;">
         <button class="accordion-button collapsed" type="button" data-toggle="collapse"
             data-target="#collapse{{teacher.pk}}" aria-expanded="true" aria-controls="collapse{{teacher.pk}}">
             {{ teacher.user.get_full_name }}
@@ -15,7 +15,8 @@
         <div class="accordion-body">
             <ul class="list-group">
                 {% for course in teacher.course_set.all %}
-                <li class="list-group-item">
+                <li class="list-group-item" id="{{ course.course_code }} + {{ course.course_type|lower }}"
+                    style="display: none;">
                     <div class="row">
                         <div class="col-md-8">
                             {{ course.course_code }} {{ course.course_type|lower }}
@@ -171,7 +172,7 @@
 {% block js %}
 
 <script>
-    //-------- Show all courses of the semester that is selected currently start ---------//
+    //-------- Show all courses and teachers of the semester that is selected currently starts ---------//
 
     // Initially semester 11 selected //
     showAllSemesterCourses("11");
@@ -188,7 +189,38 @@
             }
         {% endfor %}
     }
-    //-------- Show all courses of the semester that is selected currently ends ---------//
+
+
+    //Function that actually shows teachers
+    function showAllSemesterCourses(tab_id) {
+        {% for teacher in teachers %}
+            var isShown = false
+            {% for course in teacher.course_set.all %}
+                teacher_element = document.getElementById("teacher{{teacher.pk}}")
+                
+                // Show teacher or not
+                if ({{ course.semester }} != tab_id ) {  
+                    if(isShown == false) {
+                        teacher_element.setAttribute("style", "display: none;")
+                    }
+                    teacher_course_id = "{{ course.course_code }} + {{ course.course_type|lower }}"
+                    course_of_teacher = document.getElementById(teacher_course_id)
+                    course_of_teacher.setAttribute("style", "display: none;")
+                }
+                else if ({{ course.semester }} == tab_id) {
+                    teacher_element.setAttribute("style", "display: block;");
+                    // show courses of this teacher only of this semester
+                    teacher_course_id = "{{ course.course_code }} + {{ course.course_type|lower }}"
+                    course_of_teacher = document.getElementById(teacher_course_id)
+                    course_of_teacher.setAttribute("style", "display: block;")
+                    isShown = true;
+                    
+                }
+            {% endfor %}
+        {% endfor %}
+    }
+
+    //-------- Show all courses and teachers of the semester that is selected currently ends ---------//
 
 
 
@@ -208,6 +240,10 @@
             var tab_id = $(this).attr('id');
             tab_id = tab_id.slice(6, 8);
             showAllSemesterCourses(tab_id);
+
+
+            // Show all teachers who are taking course in the selected semester
+
         })
     })
     //----------------- Funtion for selected tab ends---------------------//
