@@ -74,14 +74,6 @@
 {% block body %}
 <div class="row jumbotron">
     <div class="col-md-12">
-    <form action="" method="POST">
-        {% csrf_token %}
-        {{ formset.management_form }}
-        {% for form in formset %}
-        {{ form }}<hr>
-        {% endfor %}
-        <input type="submit" name="Submit">
-    </form>
         <div class="card">
             <div class="card-header">
                 <ul class="nav nav-pills card-header-pills" id="routine" role="tablist">
@@ -151,35 +143,50 @@
                     </div>
                 </div>
             </div>
-            <div class="card-footer ml-3" id="cardFooter" style="display: block; color:darkslategray;"><b>Click on a
+            <div class="card-footer ml-3" id="cardFooter" style="display: none; color:darkslategray;"><b>Click on a
                     Cell to mark it as Engaged. Double click to remove the mark</b></div>
         </div>
     </div>
     <div class="row">
-        <form action="" method="POST" class="col-md-4 ml-3">
-            {% csrf_token %}
-            <div id="engForm" style="display: none;">
-
-            </div>
-            <button class="btn btn-success mt-3" type="submit" id="uploadToServer" style="display: inline-block;">
-                Upload to the Server
+        <div class="col-md-3 ml-3">
+            <form action="" method="POST">
+                {% csrf_token %}
+                <div id="routineForm" style="display: none;">
+                    {{ formset.management_form }}
+                    {% for form in formset %}
+                    {{ form }}<hr>
+                    {% endfor %}
+                </div>
+                <button class="btn btn-success mt-3" type="submit" id="uploadToServer" style="display: inline-block;">
+                    Upload to the Server
+                </button>
+            </form>
+        </div>
+        <div class="mt-3 col-md-3">
+            <button class="btn btn-primary" onclick="startUpdate()" style="display: inline-block;"
+                id="updateSchedule">
+                Update Routine
             </button>
-        </form>
-        <button class="btn btn-primary mt-3 col-md-3" onclick="startUpdate()" style="display: inline-block;"
-            id="updateSchedule">
-            Update Routine
+        </div>
+    </div>
+    <div class="col-md-3">
+        <button class="btn btn-primary mt-3 ml-3" type="button" href="" id="saveUpdate" style="display: none; cursor:pointer;"
+            onclick="saveUpdate()">Save
         </button>
     </div>
-    <button class="btn btn-primary mt-3" type="button" href="" id="saveUpdate" style="display: none; cursor:pointer;"
-        onclick="cancelUpdate()">Save</button>
-    <br>
-    <br>
 </div>
 {% endblock body %}
 
 {% block js %}
 
 <script>
+// Tests //
+
+
+// Tests ends //
+
+
+
 //-------- Show all courses and teachers of the semester that is selected currently starts ---------//
 
 // Initially semester 11 selected //
@@ -279,11 +286,12 @@ for (let i = 0; i < 1; i++) {
     }
     var cell_id = "";
     var cell_semester;
+
     var class_course;
     var class_room;
+    var class_teacher;
     {% for field in form %}
         cell = document.getElementById("{{ field.id_for_label }}")
-        console.log(cell)
         if({{ forloop.counter0 }} == 0) {
             cell_semester = cell.value;
             cell_semester = cell_semester.toString();
@@ -293,8 +301,15 @@ for (let i = 0; i < 1; i++) {
         }
         else if ({{ forloop.counter0 }} == 3) {
             class_course = cell.options[cell.selectedIndex].text;
+            for(let i = 0; i < 1; i++) {
+                {% for course in courses %}
+                if("{{ course.course_code }}" == class_course) {
+                class_teacher = "{{ course.teacher.getShortName }}"
+                break;
+                }
+                {% endfor %}
+            }
             class_course = class_course.replace(/\s/g,'');
-            console.log(class_course)
         }
         else if ({{ forloop.counter0 }} == 4) {
             class_room = cell.options[cell.selectedIndex].text;
@@ -308,7 +323,6 @@ for (let i = 0; i < 1; i++) {
                 }
             }
             {% endfor %}
-            console.log(class_room)
         }
     {% endfor %}
 
@@ -319,18 +333,89 @@ for (let i = 0; i < 1; i++) {
 
     // Assign class details
     // Format {'11SUN8': 'CSE143 JR R-331'}
+    assigned_class_cell_values[cell_id] = class_course + " " + class_teacher + " " + class_room
     {% endfor %}
 }
 
 // Now show the current classes in the Routine
 for (class_id in assigned_class_cell_ids) {
     id = assigned_class_cell_ids[class_id]
-    console.log(id)
     routine_cell = document.getElementById(id);
+    cell_value = assigned_class_cell_values[id]
     routine_cell.setAttribute("style", "background-color: green;")
-    //cell_value = 
+    routine_cell.innerText = cell_value
 }
 //----------------- Showing Current Assigned Classes ends---------------------//
+
+
+
+//------ Update Engagement Schedule in the Run-Time starts ------//
+
+    // Make a list of all cell ids
+    const id_list = []
+    tab_content = document.getElementById("pills-tabContent").children;
+    cnt = 0;
+    for (let i = 0; i < tab_content.length; i++) {
+        t_body = tab_content[i].children[0].children[0].children[1].children
+        for (let j = 0; j < t_body.length; j++) {
+            day = t_body[j].children;
+            for (let k = 0; k < day.length; k++) {
+                cell = day[k];
+                if(cell.id) {
+                    id_list.push(cell.id)
+                }
+            }
+        }
+    }
+
+
+    update_button = document.getElementById("updateSchedule")
+    upload_button = document.getElementById("uploadToServer")
+    save_button = document.getElementById("saveUpdate")
+    footer = document.getElementById("cardFooter")
+
+    function startUpdate() {
+        update_button.style.display = "none"
+        upload_button.style.display = "none"
+        save_button.style.display = "inline-block"
+        footer.style.display = "inline-block"
+
+        for (let i = 0; i < id_list.length; i++) {
+            let cell = document.getElementById(id_list[i])
+            cell.style.cursor = "pointer"
+            cell.innerText = ""
+            cell.addEventListener("click", addClass);
+        }
+    }
+
+    addClass = function (event) {
+        cell_id = event.target.id
+        classList = event.target.classList
+        if (classList.contains("bg-danger")) {
+            classList.remove("bg-danger");
+            $("#id_time_table option:contains(" + cell_id + ")").prop('selected', false)
+        }
+        else {
+            classList.add("bg-danger");
+            $("#id_time_table option:contains(" + cell_id + ")").prop('selected', true)
+        }
+    }
+
+    function saveUpdate() {
+        update_button.style.display = "inline-block"
+        upload_button.style.display = "inline-block"
+        save_button.style.display = "none"
+        footer.style.display = "none"
+
+        for (let i = 0; i < id_list.length; i++) {
+            cell = document.getElementById(id_list[i])
+            cell.style.cursor = "default"
+            cell.innerText = ""
+            cell.removeEventListener("click", addClass);
+        }
+    }
+
+
 </script>
 
 {% endblock %}
