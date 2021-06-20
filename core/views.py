@@ -1,14 +1,12 @@
 from django.shortcuts import render, redirect
-from django.forms import modelform_factory
+from django.forms import modelform_factory, formset_factory, modelformset_factory
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from accounts.decorators import admin_only, allowed_user
 from accounts.models import User, Teacher, TeacherEngagement
 from accounts.forms import TeacherProfileForm, UserProfileForm
-from .models import Course, Room
+from .models import Course, Room, Class
 from .forms import CourseRegisterForm, RoomRegisterForm
-import json
-import ast
 
 
 @login_required(login_url='login')
@@ -85,9 +83,20 @@ def viewRoutine(request):
 @login_required(login_url='login')
 @admin_only
 def createRoutine(request):
+    ClassFormSet = modelformset_factory(
+        Class, exclude=('status',), max_num=320, extra=2)
+    formset = ClassFormSet()
     teachers = Teacher.objects.all()
     courses = Course.objects.all()
-    context = {'teachers': teachers, 'courses': courses}
+    rooms = Room.objects.all()
+
+    if request.method == "POST":
+        classForm = ClassFormSet(request.POST)
+        if classForm.is_valid():
+            classForm.save()
+            return redirect('create_routine')
+    context = {'teachers': teachers, 'courses': courses,
+               'rooms': rooms, 'formset': formset}
     return render(request, "core/create_routine.html", context)
 
 

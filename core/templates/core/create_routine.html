@@ -1,4 +1,5 @@
 {% extends 'core/admin_base.html' %}
+{% load crispy_forms_tags %}
 
 {% block teacher_list %}
 
@@ -45,7 +46,7 @@
         <button class="accordion-button collapsed" type="button" data-toggle="collapse"
             data-target="#collapse{{course.course_code|cut:' '}}" aria-expanded="true"
             aria-controls="collapse{{course.course_code|cut:' '}}">
-            {{ course.course_name }}
+            <span><strong>{{ course.course_code }}:</strong> {{ course.course_name }}</span>
         </button>
     </h2>
     <div id="collapse{{course.course_code|cut:' '}}" class="accordion-collapse collapse"
@@ -73,9 +74,20 @@
 {% block body %}
 <div class="row jumbotron">
     <div class="col-md-12">
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for form in formset %}
+        {{ form }}<hr>
+        {% endfor %}
+        <input type="submit" name="Submit">
+    </form>
         <div class="card">
             <div class="card-header">
                 <ul class="nav nav-pills card-header-pills" id="routine" role="tablist">
+                    <li class="nav-item">
+                        <span class="nav-link text-dark"><strong>Semester</strong></span>
+                    </li>
                     <li class="nav-item">
                         <button class="nav-link active" id="pills-11-tab" data-bs-toggle="pill" data-target="#pills-11"
                             type="button" role="tab" aria-controls="pills-11" aria-selected="true">1 / 1</button>
@@ -114,37 +126,33 @@
             <div class="card-body">
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-11" role="tabpanel" aria-labelledby="pills-11-tab">
-                        {% include "core/admin_routine.html" %}
+                        {% include "core/admin_routine.html" with semester="11"%}
                     </div>
                     <div class="tab-pane fade" id="pills-12" role="tabpanel" aria-labelledby="pills-12-tab">
-                        {% include "core/admin_routine.html" %}
+                        {% include "core/admin_routine.html" with semester="12"%}
                     </div>
                     <div class="tab-pane fade" id="pills-21" role="tabpanel" aria-labelledby="pills-21-tab">
-                        {% include "core/admin_routine.html" %}
+                        {% include "core/admin_routine.html" with semester="21"%}
                     </div>
                     <div class="tab-pane fade" id="pills-22" role="tabpanel" aria-labelledby="pills-22-tab">
-                        {% include "core/admin_routine.html" %}
+                        {% include "core/admin_routine.html" with semester="22"%}
                     </div>
                     <div class="tab-pane fade" id="pills-31" role="tabpanel" aria-labelledby="pills-31-tab">
-                        {% include "core/admin_routine.html" %}
+                        {% include "core/admin_routine.html" with semester="31"%}
                     </div>
                     <div class="tab-pane fade" id="pills-32" role="tabpanel" aria-labelledby="pills-32-tab">
-                        {% include "core/admin_routine.html" %}
+                        {% include "core/admin_routine.html" with semester="32"%}
                     </div>
                     <div class="tab-pane fade" id="pills-41" role="tabpanel" aria-labelledby="pills-41-tab">
-                        {% include "core/admin_routine.html" %}
+                        {% include "core/admin_routine.html" with semester="41"%}
                     </div>
                     <div class="tab-pane fade" id="pills-42" role="tabpanel" aria-labelledby="pills-42-tab">
-                        {% include "core/admin_routine.html" %}
+                        {% include "core/admin_routine.html" with semester="42"%}
                     </div>
                 </div>
             </div>
             <div class="card-footer ml-3" id="cardFooter" style="display: block; color:darkslategray;"><b>Click on a
-                    Cell to
-                    mark
-                    it as
-                    Engaged. Double click
-                    to remove the mark</b></div>
+                    Cell to mark it as Engaged. Double click to remove the mark</b></div>
         </div>
     </div>
     <div class="row">
@@ -172,81 +180,157 @@
 {% block js %}
 
 <script>
-    //-------- Show all courses and teachers of the semester that is selected currently starts ---------//
+//-------- Show all courses and teachers of the semester that is selected currently starts ---------//
 
-    // Initially semester 11 selected //
-    showAllSemesterCourses("11");
+// Initially semester 11 selected //
+showAllSemesterCourses("11");
+showAllTeachersofThisSemester("11");
 
-    // Function that actually shows courses
-    function showAllSemesterCourses(tab_id) {
-        {% for course in courses %}
-            course_element = document.getElementById("{{ course.course_code|cut:' ' }}")
-            if ({{ course.semester }} != tab_id) {  
-                course_element.setAttribute("style", "display: none;")
-            }
-            else {
-                course_element.setAttribute("style", "display: block;")
-            }
-        {% endfor %}
+// Function that actually shows courses
+function showAllSemesterCourses(tab_id) {
+    {% for course in courses %}
+    course_element = document.getElementById("{{ course.course_code|cut:' ' }}")
+    if ({{ course.semester }} != tab_id) {
+        course_element.setAttribute("style", "display: none;")
+        }
+    else {
+        course_element.setAttribute("style", "display: block;")
     }
+    {% endfor %}
+}
 
 
-    //Function that actually shows teachers
-    function showAllSemesterCourses(tab_id) {
-        {% for teacher in teachers %}
-            var isShown = false
-            {% for course in teacher.course_set.all %}
-                teacher_element = document.getElementById("teacher{{teacher.pk}}")
-                
-                // Show teacher or not
-                if ({{ course.semester }} != tab_id ) {  
-                    if(isShown == false) {
-                        teacher_element.setAttribute("style", "display: none;")
-                    }
-                    teacher_course_id = "{{ course.course_code }} + {{ course.course_type|lower }}"
-                    course_of_teacher = document.getElementById(teacher_course_id)
-                    course_of_teacher.setAttribute("style", "display: none;")
-                }
-                else if ({{ course.semester }} == tab_id) {
-                    teacher_element.setAttribute("style", "display: block;");
-                    // show courses of this teacher only of this semester
-                    teacher_course_id = "{{ course.course_code }} + {{ course.course_type|lower }}"
-                    course_of_teacher = document.getElementById(teacher_course_id)
-                    course_of_teacher.setAttribute("style", "display: block;")
-                    isShown = true;
-                    
-                }
-            {% endfor %}
-        {% endfor %}
+//Function that actually shows teachers
+function showAllTeachersofThisSemester(tab_id) {
+    {% for teacher in teachers %}
+    var isShown = false
+    {% for course in teacher.course_set.all %}
+    teacher_element = document.getElementById("teacher{{teacher.pk}}")
+
+    // Show teacher or not
+    if ({{ course.semester }} != tab_id ) {
+        if (isShown == false) {
+            teacher_element.setAttribute("style", "display: none;")
+        }
+
+        // Hide courses that are not of this semester
+        teacher_course_id = "{{ course.course_code }} + {{ course.course_type|lower }}"
+        course_of_teacher = document.getElementById(teacher_course_id)
+        course_of_teacher.setAttribute("style", "display: none;")
     }
+    else if ({{ course.semester }} == tab_id) {
+    teacher_element.setAttribute("style", "display: block;");
 
-    //-------- Show all courses and teachers of the semester that is selected currently ends ---------//
+    // show courses of this teacher only of this semester
+    teacher_course_id = "{{ course.course_code }} + {{ course.course_type|lower }}"
+    course_of_teacher = document.getElementById(teacher_course_id)
+    course_of_teacher.setAttribute("style", "display: block;")
+    isShown = true;
 
+    }
+    {% endfor %}
+    {% endfor %}
+}
 
-
-    //----------------- Funtion for selected tab starts---------------------//
-    var triggerTabList = [].slice.call(document.querySelectorAll('#routine button'));
-
-    triggerTabList.forEach(function (selectedTab) {
-        var tabTrigger = new bootstrap.Tab(selectedTab);
-
-        selectedTab.addEventListener('click', function (event) {
-            // Mark the selected tab as primary button
-            event.preventDefault();
-            tabTrigger.show();
-
-
-            // Show all courses of the selected semester
-            var tab_id = $(this).attr('id');
-            tab_id = tab_id.slice(6, 8);
-            showAllSemesterCourses(tab_id);
+//-------- Show all courses and teachers of the semester that is selected currently ends ---------//
 
 
-            // Show all teachers who are taking course in the selected semester
 
-        })
+//----------------- Funtion for selected tab starts---------------------//
+var triggerTabList = [].slice.call(document.querySelectorAll('#routine button'));
+
+triggerTabList.forEach(function (selectedTab) {
+    var tabTrigger = new bootstrap.Tab(selectedTab);
+
+    selectedTab.addEventListener('click', function (event) {
+        // Mark the selected tab as primary button
+        event.preventDefault();
+        tabTrigger.show();
+
+
+        // Show all courses of the selected semester
+        var tab_id = $(this).attr('id');
+        tab_id = tab_id.slice(6, 8);
+        showAllSemesterCourses(tab_id);
+
+        // Show all teachers who are taking course in the selected semester
+        showAllTeachersofThisSemester(tab_id);
+
+        
+
     })
-    //----------------- Funtion for selected tab ends---------------------//
+})
+//----------------- Funtion for selected tab ends---------------------//
+
+
+
+
+//----------------- Showing Current Assigned Classes starts---------------------//
+
+// Save current classes in this object
+assigned_class_cell_ids = []
+assigned_class_cell_values = {}
+
+for (let i = 0; i < 1; i++) {
+    initialForm = document.getElementById("id_form-INITIAL_FORMS").value
+    {% for form in formset %}
+    if ({{ forloop.counter0 }} == initialForm) {
+        break;
+    }
+    var cell_id = "";
+    var cell_semester;
+    var class_course;
+    var class_room;
+    {% for field in form %}
+        cell = document.getElementById("{{ field.id_for_label }}")
+        console.log(cell)
+        if({{ forloop.counter0 }} == 0) {
+            cell_semester = cell.value;
+            cell_semester = cell_semester.toString();
+        }
+        else if({{ forloop.counter0 }} == 1 || {{ forloop.counter0 }} == 2) {
+            cell_id += cell.value;
+        }
+        else if ({{ forloop.counter0 }} == 3) {
+            class_course = cell.options[cell.selectedIndex].text;
+            class_course = class_course.replace(/\s/g,'');
+            console.log(class_course)
+        }
+        else if ({{ forloop.counter0 }} == 4) {
+            class_room = cell.options[cell.selectedIndex].text;
+            {% for room in rooms %}
+            if ("{{ room.room_id }}" == class_room) {
+                if("{{ room.room_type }}" == 'THEORY') {
+                    class_room = "R-" + class_room
+                }
+                else {
+                    class_room = "L-" + class_room
+                }
+            }
+            {% endfor %}
+            console.log(class_room)
+        }
+    {% endfor %}
+
+    // cell_id example = "11SUN8"
+    // Where '11' is semester and 'SUN8' is the cell place
+    cell_id = cell_semester + cell_id;
+    assigned_class_cell_ids.push(cell_id);
+
+    // Assign class details
+    // Format {'11SUN8': 'CSE143 JR R-331'}
+    {% endfor %}
+}
+
+// Now show the current classes in the Routine
+for (class_id in assigned_class_cell_ids) {
+    id = assigned_class_cell_ids[class_id]
+    console.log(id)
+    routine_cell = document.getElementById(id);
+    routine_cell.setAttribute("style", "background-color: green;")
+    //cell_value = 
+}
+//----------------- Showing Current Assigned Classes ends---------------------//
 </script>
 
 {% endblock %}

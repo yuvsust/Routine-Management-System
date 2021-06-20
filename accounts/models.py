@@ -7,6 +7,18 @@ from django.contrib.auth.base_user import BaseUserManager
 from phonenumber_field.modelfields import PhoneNumberField
 
 
+class TeacherManager(models.Manager):
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.order_by(models.Case(
+            models.When(designation="PR", then=models.Value(0)),
+            models.When(designation="ASc", then=models.Value(1)),
+            models.When(designation="Ast", then=models.Value(2)),
+            default=models.Value(3)
+        ))
+        return queryset
+
+
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -121,10 +133,21 @@ class Teacher(models.Model):
     phone_number = PhoneNumberField(null=True, blank=True, max_length=15)
     time_table = models.ManyToManyField(
         TimeTable, through='TeacherEngagement', blank=True)
+    objects = TeacherManager()
 
     class Meta:
         verbose_name = _('teacher')
         verbose_name_plural = _('teachers')
+
+    def getShortName(self):
+        f_name = self.user.first_name.split()
+        l_name = self.user.last_name.split()
+        shortName = ""
+        for name in f_name:
+            shortName += name[0]
+        for name in l_name:
+            shortName += name[0]
+        return shortName.upper()
 
     def __str__(self):
         return self.user.get_full_name()

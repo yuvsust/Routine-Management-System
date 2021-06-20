@@ -3,6 +3,13 @@ from accounts.models import Teacher, TimeTable
 from django.utils.translation import ugettext_lazy as _
 
 
+class CourseManager(models.Manager):
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.order_by('preference', 'course_code')
+        return queryset
+
+
 class Course(models.Model):
     TYPE_CHOICES = (
         ('THEORY', 'Theory'),
@@ -37,6 +44,7 @@ class Course(models.Model):
     semester = models.CharField(
         _('Semester'), max_length=2, choices=SEMESTER_CHOICES)
     teacher = models.ForeignKey(Teacher, on_delete=models.RESTRICT)
+    objects = CourseManager()
 
     class Meta:
         verbose_name = _('course')
@@ -113,7 +121,8 @@ class Class(models.Model):
     time = models.CharField(_('time of the day'), max_length=5)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    status = models.CharField(max_length=9, choices=STATUS_CHOICES)
+    status = models.CharField(
+        max_length=9, choices=STATUS_CHOICES, default='SCHEDULED')
 
     class Meta:
         verbose_name = _('class')
