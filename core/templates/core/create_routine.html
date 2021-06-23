@@ -8,7 +8,7 @@
     <h2 class="accordion-header" id="teacher{{teacher.pk}}" style="display: none;">
         <button class="accordion-button collapsed" type="button" data-toggle="collapse"
             data-target="#collapse{{teacher.pk}}" aria-expanded="true" aria-controls="collapse{{teacher.pk}}">
-            {{ teacher.user.get_full_name }}
+            {{ teacher.user.get_full_name }} ( {{teacher.getShortName}} )
         </button>
     </h2>
     <div id="collapse{{teacher.pk}}" class="accordion-collapse collapse" aria-labelledby="teacher{{teacher.pk}}"
@@ -170,11 +170,16 @@
         </div>
     </div>
     <div class="col-md-3">
-        <button class="btn btn-primary mt-3 ml-3" type="button" href="" id="saveUpdate" style="display: none; cursor:pointer;"
-            onclick="saveUpdate()">Save
+        <button class="btn btn-primary mt-3 ml-3" type="button" href="" id="saveUpdate" 
+            style="display: none; cursor:pointer;" onclick="saveUpdate()">Save
         </button>
     </div>
 </div>
+    <!-- This is nothing but popover element which is hidden in this body-->
+    <!-- Button trigger modal -->
+    {% include "core/modal_element.html" with courses=courses rooms=rooms semester="11"%}
+
+
 {% endblock body %}
 
 {% block js %}
@@ -182,10 +187,7 @@
 <script>
 // Tests //
 
-
 // Tests ends //
-
-
 
 //-------- Show all courses and teachers of the semester that is selected currently starts ---------//
 
@@ -275,7 +277,6 @@ triggerTabList.forEach(function (selectedTab) {
 //----------------- Showing Current Assigned Classes starts---------------------//
 
 // Save current classes in this object
-assigned_class_cell_ids = []
 assigned_class_cell_values = {}
 
 for (let i = 0; i < 1; i++) {
@@ -329,7 +330,6 @@ for (let i = 0; i < 1; i++) {
     // cell_id example = "11SUN8"
     // Where '11' is semester and 'SUN8' is the cell place
     cell_id = cell_semester + cell_id;
-    assigned_class_cell_ids.push(cell_id);
 
     // Assign class details
     // Format {'11SUN8': 'CSE143 JR R-331'}
@@ -338,11 +338,10 @@ for (let i = 0; i < 1; i++) {
 }
 
 // Now show the current classes in the Routine
-for (class_id in assigned_class_cell_ids) {
-    id = assigned_class_cell_ids[class_id]
-    routine_cell = document.getElementById(id);
-    cell_value = assigned_class_cell_values[id]
-    routine_cell.setAttribute("style", "background-color: green;")
+for (class_id in assigned_class_cell_values) {
+    routine_cell = document.getElementById(class_id);
+    cell_value = assigned_class_cell_values[class_id]
+    routine_cell.classList.add("bg-success");
     routine_cell.innerText = cell_value
 }
 //----------------- Showing Current Assigned Classes ends---------------------//
@@ -383,22 +382,67 @@ for (class_id in assigned_class_cell_ids) {
         for (let i = 0; i < id_list.length; i++) {
             let cell = document.getElementById(id_list[i])
             cell.style.cursor = "pointer"
-            cell.innerText = ""
             cell.addEventListener("click", addClass);
         }
-    }
+    };
 
     addClass = function (event) {
         cell_id = event.target.id
         classList = event.target.classList
-        if (classList.contains("bg-danger")) {
-            classList.remove("bg-danger");
-            $("#id_time_table option:contains(" + cell_id + ")").prop('selected', false)
-        }
-        else {
-            classList.add("bg-danger");
-            $("#id_time_table option:contains(" + cell_id + ")").prop('selected', true)
-        }
+        routine_cell = document.getElementById(cell_id)
+        var cell_value = routine_cell.innerText
+        var cell_course = "", cell_teacher = "", cell_room = "";
+
+        $('#showCoursesModal').modal('toggle');
+        $("input:checkbox").prop("checked", false);
+        
+        $("input:checkbox").on('click', function() {
+            // This will make checkbox a single selection button
+            var $box = $(this);
+            if ($box.is(":checked")) {
+                var group = "input:checkbox[name='" + $box.attr("name") + "']";
+                $(group).prop("checked", false);
+                $box.prop("checked", true);
+                if($box.attr("name") == "checkCourse") {
+                    cell_course = $box.closest("tr").children('td:eq(1)').text()
+                    cell_teacher = $box.closest("tr").children('td:eq(2)').text()
+                }
+                else {
+                    cell_room = $box.closest("tr").children('td:eq(1)').text()
+                }
+            } else {
+                if($box.attr("name") == "checkCourse") {
+                    cell_course = "", cell_teacher = ""
+                }
+                else {
+                    cell_room = ""
+                }
+                $box.prop("checked", false);
+            }
+        })
+
+        $('#modalSave').click(function(){
+            if(cell_course != "" && cell_room != "") {
+                $(this).attr('data-dismiss', 'modal')
+                if(cell_course.slice(-1) == 'T') {
+                    cell_room = "R" + "-" + cell_room
+                }
+                else {
+                    cell_room = "L" + "-" + cell_room
+                }
+                cell_value = cell_course.slice(0, -1) + " " + cell_teacher + " " + cell_room
+                routine_cell.innerText = cell_value;
+                classList.add("bg-success")
+            }
+            else {
+                $(this).removeAttr('data-dismiss')
+            }
+        })
+
+        $('#modalRemove').click(function() {
+            routine_cell.innerText = "";
+            classList.remove("bg-success");
+        })
     }
 
     function saveUpdate() {
@@ -410,11 +454,9 @@ for (class_id in assigned_class_cell_ids) {
         for (let i = 0; i < id_list.length; i++) {
             cell = document.getElementById(id_list[i])
             cell.style.cursor = "default"
-            cell.innerText = ""
             cell.removeEventListener("click", addClass);
         }
-    }
-
+    };
 
 </script>
 

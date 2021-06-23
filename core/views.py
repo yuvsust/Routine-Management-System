@@ -89,14 +89,32 @@ def createRoutine(request):
     teachers = Teacher.objects.all()
     courses = Course.objects.all()
     rooms = Room.objects.all()
+    classes11 = Class.objects.classesOfSemester("11")
+    classes12 = Class.objects.classesOfSemester("12")
+    classes21 = Class.objects.classesOfSemester("21")
+    classes22 = Class.objects.classesOfSemester("22")
+    classes31 = Class.objects.classesOfSemester("31")
+    classes32 = Class.objects.classesOfSemester("32")
+    classes41 = Class.objects.classesOfSemester("41")
+    classes42 = Class.objects.classesOfSemester("42")
 
     if request.method == "POST":
         classForm = ClassFormSet(request.POST)
         if classForm.is_valid():
             classForm.save()
             return redirect('create_routine')
-    context = {'teachers': teachers, 'courses': courses,
-               'rooms': rooms, 'formset': formset}
+    context = {'teachers': teachers,
+               'courses': courses,
+               'rooms': rooms,
+               'classes11': classes11,
+               'classes12': classes12,
+               'classes21': classes21,
+               'classes22': classes22,
+               'classes31': classes31,
+               'classes32': classes32,
+               'classes41': classes41,
+               'classes42': classes42,
+               'formset': formset}
     return render(request, "core/create_routine.html", context)
 
 

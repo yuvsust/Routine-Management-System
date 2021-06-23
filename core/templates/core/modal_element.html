@@ -1,0 +1,82 @@
+<style>
+    table,
+    th,
+    td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    table {
+        width: 100%;
+    }
+</style>
+<div class="modal fade" id="showCoursesModal" tabindex="-1" role="dialog" aria-labelledby="showCoursesModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="showCoursesModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" id="modalCross">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-9">
+                        <table>
+                            <thead>
+                                <tr class="text-center">
+                                    <th>Select</th>
+                                    <th>Courses</th>
+                                    <th>Teacher</th>
+                                    <th>Hrs Left</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for course in courses %}
+                                {% if course.semester == semester %}
+                                <tr class="text-center">
+                                    <td>
+                                        <input type="checkbox" class="add-class btn btn-sm btn-outline-primary"
+                                            name="checkCourse">
+                                    </td>
+                                    <td>{{course.course_code}}<b>{{course.course_type|first}}</b></td>
+                                    <td class="bg-success">{{course.teacher.getShortName}}</td>
+                                    <td>{{course.getCourseClassHours}}</td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-3">
+                        <table>
+                            <thead>
+                                <tr class="text-center">
+                                    <th scope="col">Select</th>
+                                    <th scope="col">Rooms</th>
+                                </tr>
+                            </thead>
+                            <tbody border="1">
+                                {% for room in rooms %}
+                                <tr class="text-center">
+                                    <td>
+                                        <input type="checkbox" class="add-room btn btn-sm btn-outline-primary"
+                                            name="checkRoom">
+                                    </td>
+                                    <td>{{room.room_id}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="modalClose" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="modalRemove" data-dismiss="modal">Remove Class</button>
+                <button type="button" class="btn btn-primary" id="modalSave">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>

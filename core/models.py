@@ -50,6 +50,12 @@ class Course(models.Model):
         verbose_name = _('course')
         verbose_name_plural = _('courses')
 
+    def getCourseClassHours(self):
+        if self.course_type == "THEORY":
+            return int(self.course_credit)
+        else:
+            return int(self.course_credit) * 2
+
     def __str__(self):
         return self.course_code
 
@@ -91,6 +97,12 @@ class RoomEngagement(models.Model):
         return self.room.room_id + "_" + self.time_table.get_id()
 
 
+class ClassManager(models.Manager):
+    def classesOfSemester(self, semester):
+        queryset = super().get_queryset().filter(semester=semester)
+        return queryset
+
+
 class Class(models.Model):
     SEMESTER_CHOICES = (
         ('11', '1/1'),
@@ -123,6 +135,8 @@ class Class(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     status = models.CharField(
         max_length=9, choices=STATUS_CHOICES, default='SCHEDULED')
+
+    objects = ClassManager()
 
     class Meta:
         verbose_name = _('class')
