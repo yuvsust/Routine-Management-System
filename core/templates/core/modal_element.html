@@ -60,7 +60,7 @@
                             </thead>
                             <tbody border="1">
                                 {% for room in rooms %}
-                                <tr class="text-center" name="room-{{room.room_type}}">
+                                <tr class="text-center" name="room-{{room.room_type}}" data-room="{{room.room_id}}">
                                     <td>
                                         <input type="checkbox" class="add-room btn btn-sm btn-outline-primary"
                                             name="checkRoom">
