@@ -143,8 +143,9 @@
                     </div>
                 </div>
             </div>
-            <div class="card-footer ml-3" id="cardFooter" style="display: none; color:darkslategray;"><b>Click on a
-                    Cell to mark it as Engaged. Double click to remove the mark</b></div>
+            <div class="card-footer ml-3" id="cardFooter" style="display: none; color:darkslategray;">
+                <b>Click on a Cell to Add/Update class</b>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -178,6 +179,13 @@
     <!-- This is nothing but popover element which is hidden in this body-->
     <!-- Button trigger modal -->
     {% include "core/modal_element.html" with courses=courses rooms=rooms semester="11"%}
+    {% include "core/modal_element.html" with courses=courses rooms=rooms semester="12"%}
+    {% include "core/modal_element.html" with courses=courses rooms=rooms semester="21"%}
+    {% include "core/modal_element.html" with courses=courses rooms=rooms semester="22"%}
+    {% include "core/modal_element.html" with courses=courses rooms=rooms semester="31"%}
+    {% include "core/modal_element.html" with courses=courses rooms=rooms semester="32"%}
+    {% include "core/modal_element.html" with courses=courses rooms=rooms semester="41"%}
+    {% include "core/modal_element.html" with courses=courses rooms=rooms semester="42"%}
 
 
 {% endblock body %}
@@ -327,6 +335,8 @@ for (let i = 0; i < 1; i++) {
         }
     {% endfor %}
 
+    day = cell_id.slice(0, 3)  // Remove time
+
     // cell_id example = "11SUN8"
     // Where '11' is semester and 'SUN8' is the cell place
     cell_id = cell_semester + cell_id;
@@ -334,6 +344,10 @@ for (let i = 0; i < 1; i++) {
     // Assign class details
     // Format {'11SUN8': 'CSE143 JR R-331'}
     assigned_class_cell_values[cell_id] = class_course + " " + class_teacher + " " + class_room
+
+
+    // Assign value in `course_on_a_day`
+    course_on_a_day[cell_semester][day_index[day]].push(class_course)    
     {% endfor %}
 }
 
@@ -355,7 +369,7 @@ for (class_id in assigned_class_cell_values) {
     tab_content = document.getElementById("pills-tabContent").children;
     cnt = 0;
     for (let i = 0; i < tab_content.length; i++) {
-        t_body = tab_content[i].children[0].children[0].children[1].children
+        t_body = tab_content[i].children[1].children[0].children[1].children
         for (let j = 0; j < t_body.length; j++) {
             day = t_body[j].children;
             for (let k = 0; k < day.length; k++) {
@@ -367,6 +381,12 @@ for (class_id in assigned_class_cell_values) {
         }
     }
 
+    function resetModalTables() {
+        $("[name=room-THEORY]").removeAttr("style");
+        $("[name=room-LAB]").removeAttr("style");
+        $("[name=course-THEORY]").removeAttr("style");
+        $("[name=course-LAB]").removeAttr("style");
+    }
 
     update_button = document.getElementById("updateSchedule")
     upload_button = document.getElementById("uploadToServer")
@@ -387,13 +407,50 @@ for (class_id in assigned_class_cell_values) {
     };
 
     addClass = function (event) {
-        cell_id = event.target.id
-        classList = event.target.classList
-        routine_cell = document.getElementById(cell_id)
-        var cell_value = routine_cell.innerText
-        var cell_course = "", cell_teacher = "", cell_room = "";
 
-        $('#showCoursesModal').modal('toggle');
+        // ----- All variables needed for the war -----//
+        cell_id = event.target.id;
+        classList = event.target.classList;
+        routine_cell = document.getElementById(cell_id);
+        cell_value = routine_cell.innerText;
+        cell_course = "";
+        cell_teacher = "";
+        cell_room = "";
+        cell_day = cell_id.slice(2, 5);
+        cell_semester = cell_id.slice(0, 2);
+        cell_attr = "";
+        name_attr = "";
+        // ----- All variables needed for the war Ends-----//
+
+
+        //------ Dont Show Course that is Assigned in this day already starts ------//
+
+        // Hide courses that is already assigned in this day
+        for (course of course_on_a_day[cell_semester][day_index[cell_day]]) {
+            cell_attr = "tr[data-course='" + course.slice(0, 3) + " " + course.slice(3) + "']";
+            $(cell_attr).attr("style","display: none");
+
+            // This will remove "name" attribute from modal row to track the mark that 
+            // This course is hidden because of similar day issue not for theory-lab issue
+            // as we are hiding row by "name" attr for theory-lab issue 
+            // and by "data-course" attr for same day course issue
+            name_attr = $(cell_attr).attr("name");
+            $(cell_attr).removeAttr("name");
+        }
+
+        $(".modal").on("hidden.bs.modal", function(){
+            for (course of course_on_a_day[cell_semester][day_index[cell_day]]) {
+
+                // While hiding the modal re-attach the "name" attribute so that it can be callable
+                // further for theory-lab issue
+                cell_attr = "tr[data-course='" + course.slice(0, 3) + " " + course.slice(3) + "']";
+                $(cell_attr).removeAttr("style");
+                $(cell_attr).attr("name", name_attr);
+            }
+            resetModalTables();
+        });
+
+        $('#showCoursesModal'+cell_semester).modal('toggle');
         $("input:checkbox").prop("checked", false);
         
         $("input:checkbox").on('click', function() {
@@ -404,13 +461,36 @@ for (class_id in assigned_class_cell_values) {
                 $(group).prop("checked", false);
                 $box.prop("checked", true);
                 if($box.attr("name") == "checkCourse") {
+                    // cell_course = "CSE 134L" This is what is shown in the modal table
                     cell_course = $box.closest("tr").children('td:eq(1)').text()
                     cell_teacher = $box.closest("tr").children('td:eq(2)').text()
+
+                    // Limiting Admin to not choose lab room for theory course
+                    if(cell_course.slice(-1) == "T") {
+                        $("[name=room-LAB]").attr("style","display: none");
+                        $("[name=room-THEORY]").removeAttr("style");
+                    }
+                    else if(cell_course.slice(-1) == "L") {
+                        $("[name=room-THEORY]").attr("style","display: none");
+                        $("[name=room-LAB]").removeAttr("style");
+                    }
                 }
                 else {
-                    cell_room = $box.closest("tr").children('td:eq(1)').text()
+                    //cell_room = "R-331" This is what is shown in the modal table
+                    cell_room = $box.closest("tr").children('td:eq(1)').text().replace(/\s+/g, '')
+
+                    // Limiting Admin to not choose theory course for lab room
+                    if(cell_room.charAt(0) == "R") {
+                        $("[name=course-LAB]").attr("style","display: none");
+                        $("[name=course-THEORY]").removeAttr("style");
+                    }
+                    else if(cell_room.charAt(0) == "L") {
+                        $("[name=course-THEORY]").attr("style","display: none");
+                        $("[name=course-LAB]").removeAttr("style");
+                    }
                 }
             } else {
+                // If a selection is undo
                 if($box.attr("name") == "checkCourse") {
                     cell_course = "", cell_teacher = ""
                 }
@@ -418,30 +498,43 @@ for (class_id in assigned_class_cell_values) {
                     cell_room = ""
                 }
                 $box.prop("checked", false);
+                resetModalTables();
             }
         })
 
-        $('#modalSave').click(function(){
+        $('#modalSave'+cell_semester).click(function(){
             if(cell_course != "" && cell_room != "") {
                 $(this).attr('data-dismiss', 'modal')
-                if(cell_course.slice(-1) == 'T') {
-                    cell_room = "R" + "-" + cell_room
-                }
-                else {
-                    cell_room = "L" + "-" + cell_room
-                }
-                cell_value = cell_course.slice(0, -1) + " " + cell_teacher + " " + cell_room
+                cell_value = cell_course.slice(0, -1).replace(/\s+/g, '') + " " + cell_teacher + " " + cell_room
                 routine_cell.innerText = cell_value;
                 classList.add("bg-success")
+
+                // Add this course in assigned course list of this day
+                course_on_a_day[cell_semester][day_index[cell_day]].push(cell_course.slice(0, -1).replace(/\s+/g, ''))
+                
+                resetModalTables();
             }
             else {
                 $(this).removeAttr('data-dismiss')
             }
         })
 
-        $('#modalRemove').click(function() {
-            routine_cell.innerText = "";
+        $('#modalRemove'+cell_semester).click(function() {
             classList.remove("bg-success");
+            cell_course_code = routine_cell.innerText.split(' ')[0]
+            routine_cell.innerText = "";
+
+            // Pop the course from the assigned course list as this is removed now
+            idx = course_on_a_day[cell_semester][day_index[cell_day]].indexOf(cell_course_code)
+            course_on_a_day[cell_semester][day_index[cell_day]].splice(idx, 1);
+
+            // Remove display=none value from attribute
+            // And attach "name" attribute
+            cell_attr = "tr[data-course='" + cell_course_code.slice(0, 3) + " " + cell_course_code.slice(3) + "']";
+            $(cell_attr).removeAttr("style");
+            $(cell_attr).attr("name", name_attr);
+
+            resetModalTables();
         })
     }
 

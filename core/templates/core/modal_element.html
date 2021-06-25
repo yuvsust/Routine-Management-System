@@ -10,8 +10,8 @@
         width: 100%;
     }
 </style>
-<div class="modal fade" id="showCoursesModal" tabindex="-1" role="dialog" aria-labelledby="showCoursesModalLabel"
-    aria-hidden="true">
+<div class="modal fade" id="showCoursesModal{{semester}}" tabindex="-1" role="dialog"
+    aria-labelledby="showCoursesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -35,7 +35,8 @@
                             <tbody>
                                 {% for course in courses %}
                                 {% if course.semester == semester %}
-                                <tr class="text-center">
+                                <tr class="text-center" name="course-{{course.course_type}}"
+                                    data-course="{{course.course_code}}">
                                     <td>
                                         <input type="checkbox" class="add-class btn btn-sm btn-outline-primary"
                                             name="checkCourse">
@@ -59,12 +60,18 @@
                             </thead>
                             <tbody border="1">
                                 {% for room in rooms %}
-                                <tr class="text-center">
+                                <tr class="text-center" name="room-{{room.room_type}}">
                                     <td>
                                         <input type="checkbox" class="add-room btn btn-sm btn-outline-primary"
                                             name="checkRoom">
                                     </td>
-                                    <td>{{room.room_id}}</td>
+                                    <td>
+                                        {% if room.room_type == "THEORY" %}
+                                        R-{{room.room_id}}
+                                        {% else %}
+                                        L-{{room.room_id}}
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -74,8 +81,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="modalClose" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-danger" id="modalRemove" data-dismiss="modal">Remove Class</button>
-                <button type="button" class="btn btn-primary" id="modalSave">Save changes</button>
+                <button type="button" class="btn btn-danger" id="modalRemove{{semester}}" data-dismiss="modal">Remove
+                    Class</button>
+                <button type="button" class="btn btn-primary" id="modalSave{{semester}}">Save changes</button>
             </div>
         </div>
     </div>
