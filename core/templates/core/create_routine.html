@@ -22,12 +22,7 @@
                         <div class="col-md-8">
                             {{ course.course_code }} {{ course.course_type|lower }}
                         </div>
-                        <div class="col-md-4">
-                            {% if course.course_type == 'LAB' %}
-                            {% widthratio course.course_credit 1 2 %} hrs left
-                            {% else %}
-                            {{ course.course_credit|floatformat }} hrs left
-                            {% endif %}
+                        <div class="col-md-4" id="{{teacher.pk}}_{{course.course_code|cut:' '}}_hrs">
                         </div>
                     </div>
                 </li>
@@ -53,12 +48,7 @@
         aria-labelledby="{{course.course_code|cut:' '}}" data-parent="#course_list">
         <div class="accordion-body">
             <ul class="list-group">
-                <li class="list-group-item">
-                    {% if course.course_type == 'LAB' %}
-                    {% widthratio course.course_credit 1 2 %} hrs left
-                    {% else %}
-                    {{ course.course_credit|floatformat }} hrs left
-                    {% endif %}
+                <li class="list-group-item" id="{{course.course_code|cut:' '}}_hrs">
                 </li>
             </ul>
         </div>
@@ -351,9 +341,30 @@ for (let i = 0; i < 1; i++) {
     // Assign rooms in `room_in_a_cell`
     // room_id = 'R-331' but I need '331'
     room_in_a_cell[day_time].push(class_room.slice(2))
+
+    remainingHrs[class_course] -= 1
     {% endfor %}
 }
 
+
+function updateRemainingCourseHours() {
+    // Update Teacher course hourse left on page load
+    {% for teacher in teachers %}
+        {% for course in teacher.course_set.all %}
+            teacher_course_code = "{{course.course_code|cut:' '}}"
+            $("#"+{{teacher.pk}} + "_" + teacher_course_code + "_hrs").text(remainingHrs[teacher_course_code] + " hrs left")
+        {% endfor %}
+    {% endfor %}
+
+    // Update Teacher course hourse left on page load
+    {% for course in courses %}
+        course_course_code = "{{course.course_code|cut:' '}}"
+        $("#" + course_course_code + "_hrs").text(remainingHrs[course_course_code] + " hrs left")
+    {% endfor %}
+
+}
+
+updateRemainingCourseHours();
 // Now show the current classes in the Routine
 for (class_id in assigned_class_cell_values) {
     routine_cell = document.getElementById(class_id);
@@ -444,16 +455,31 @@ for (class_id in assigned_class_cell_values) {
         //------ Dont Show Course that is Assigned in this day already starts ------//
 
         // Hide rooms that is already assigned in this particular day-time cell
+        $('#showCoursesModal'+cell_semester).modal('toggle');
+
+        {% for course in courses %}
+            crs_code = '{{course.course_code|cut:' '}}'
+            $("#H-"+crs_code).text(remainingHrs[crs_code])
+
+            // Disable courses that doesnot have any hours left
+            if(remainingHrs[crs_code] <= 0) {
+                $('[data-course='+'"{{course.course_code}}"'+']').find(">:first-child").find(">:first-child").attr("disabled", true)
+            }
+        {% endfor %}
+
+        // Disable the room that is already assigned in this day-time cell
         for (room of room_in_a_cell[cell_day_time]) {
             $('[name=alert-'+room+']').removeAttr("style");
             $('[data-room='+room+']').find(">:first-child").find(">:first-child").attr("disabled", true)
         }
 
+        
+
+
         $(".modal").on("hidden.bs.modal", function(){
             resetModalTables();
         });
 
-        $('#showCoursesModal'+cell_semester).modal('toggle');
         $("input:checkbox").prop("checked", false);
         
         $("input:checkbox").on('click', function() {
@@ -530,11 +556,20 @@ for (class_id in assigned_class_cell_values) {
                 routine_cell.innerText = cell_value;
                 classList.add("bg-success")
 
-                // Add this course in assigned course list of this day
-                // And add room in assigned room list of this day_time
-                //course_in_a_day[cell_semester][day_index[cell_day]].push(cell_course.slice(0, -1).replace(/\s+/g, ''))
-                //room_in_a_cell[cell_day_time].push(cell_room.slice(2))
+                // Update remainingHrs list
+                remainingHrs[cell_course.slice(0, -1).replace(/\s+/g, '')] -= 1
+                updateRemainingCourseHours();
+
+                // Assign courses in `course_in_a_day`
+                // cell_id = '11SUN8' but I need '11SUN'
+                course_in_a_day[cell_id.slice(0, 5)].push(cell_course.slice(0, -1).replace(/\s+/g, ''))    
+
+                // Assign rooms in `room_in_a_cell`
+                // room_id = 'R-331' but I need '331'
+                room_in_a_cell[day_time].push(cell_room.slice(2))
+
                 $(this).attr('data-dismiss', 'modal')
+                
                 
             }
             else {
@@ -550,27 +585,13 @@ for (class_id in assigned_class_cell_values) {
         $('#modalRemove'+cell_semester).unbind('click').bind('click', function() {
             classList.remove("bg-success");
             cell_text = routine_cell.innerText.split(' ')
-            
-            // Pop the course from the assigned course list as this is removed now
-            //cell_course_code = cell_text[0]
-            //idx = course_in_a_day[cell_semester][day_index[cell_day]].indexOf(cell_course_code)
-            //course_in_a_day[cell_semester][day_index[cell_day]].splice(idx, 1);
-
-            // Pop the room from the assigned room list as this is removed now
-            //old_cell_room = cell_text[2].slice(2)
-            //idx = room_in_a_cell[cell_day_time].indexOf(old_cell_room)
-            //room_in_a_cell[cell_day_time].splice(idx, 1)
-
-            // Remove display=none value from attribute
-            // And attach "name" attribute
-            //cell_attr = "tr[data-course='" + cell_course_code.slice(0, 3) + " " + cell_course_code.slice(3) + "']";
-            //$(cell_attr).removeAttr("style");
-            //$(cell_attr).attr("name", name_attr_course_table);
-            //cell_attr = "tr[data-room='" + old_cell_room + "']";
-            //$(cell_attr).removeAttr("style");
-            //$(cell_attr).attr("name", name_attr_room_table);
             routine_cell.innerText = "";
             resetModalTables();
+
+            // Update remainingHrs
+            remainingHrs[cell_text[0]] += 1
+            updateRemainingCourseHours();
+
             $(this).attr('data-dismiss', 'modal')
         })
     }

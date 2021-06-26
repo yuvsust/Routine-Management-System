@@ -62,7 +62,7 @@
                                     </td>
                                     <td>{{course.course_code}}<b>{{course.course_type|first}}</b></td>
                                     <td class="bg-success">{{course.teacher.getShortName}}</td>
-                                    <td>{{course.getCourseClassHours}}</td>
+                                    <td id="H-{{course.course_code|cut:' '}}"></td>
                                 </tr>
                                 <tr name="alert-{{course.course_code|cut:' '}}" style="display: none;">
                                     <td colspan="4">

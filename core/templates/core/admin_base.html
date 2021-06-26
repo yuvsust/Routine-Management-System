@@ -47,6 +47,15 @@
             'THU8': [], 'THU9': [], 'THU10': [], 'THU11': [], 'THU12': [], 'THU1': [], 'THU2': [], 'THU3': [], 'THU4': [],
         }
 
+        // remainingHrs = {
+        //    'CSE143': 6, 'CSE133':3
+        //}
+        let remainingHrs = {}
+        {% for course in courses %}
+        remainingHrs["{{ course.course_code|cut:' '}}"] = parseInt("{{ course.getCourseClassHours }}")
+        {% endfor %}
+
+        console.log(remainingHrs)
     </script>
 </head>
 
